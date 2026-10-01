@@ -1,0 +1,10 @@
+# API image only. Versions must match requirements.txt (same sklearn that trained the model).
+fastapi==0.141.1
+numpy==2.4.6
+pandas==3.0.6
+pydantic==2.13.5
+scikit-learn==1.9.1
+uvicorn==0.53.0
+mlflow-skinny==3.16.1
+# mlflow-skinny doesn't include skops, but MLflow 3 saves our models in skops format.
+skops==0.16.0

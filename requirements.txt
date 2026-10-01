@@ -1,0 +1,12 @@
+fastapi==0.141.1
+httpx2==2.13.1
+joblib==1.6.0
+mlflow==3.16.1
+numpy==2.4.6
+pandas==3.0.6
+prefect==3.8.6
+pydantic==2.13.5
+pytest==9.1.1
+requests==2.34.2
+scikit-learn==1.9.1
+uvicorn==0.53.0

@@ -1,0 +1,22 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Local artifacts (models live in the MLflow registry, data lives in DVC)
+models/
+mlruns/
+mlartifacts/
+mlflow.db
+mlflow.log
+
+# Misc
+.DS_Store
+.env
+
+# NOTE: do NOT add data/ here. `dvc add` writes data/.gitignore for the CSV,
+# and ignoring the whole folder would stop git from tracking the .dvc pointer file.
+
+# Reference material from another project (not part of this repo)
+mlops_guide_enhanced.md

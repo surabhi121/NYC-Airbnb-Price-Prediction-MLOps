@@ -1,0 +1,43 @@
+# One command for the serving stack: the MLflow tracking server + registry,
+# and the prediction API. It replaces the separate "mlflow server" terminal
+# and the separate `docker run`.
+#
+# The MLflow service reuses this folder's mlflow.db and mlartifacts/, so all
+# runs and @champion carry over. Stop any host `mlflow server` first: two
+# servers must never write the same SQLite file.
+services:
+  mlflow-server:
+    image: ghcr.io/mlflow/mlflow:v3.16.1   # same version as requirements.txt, so same DB schema
+    command: >
+      mlflow server
+      --backend-store-uri sqlite:////mlflow/mlflow.db
+      --artifacts-destination /mlflow/mlartifacts
+      --host 0.0.0.0 --port 5000
+      --allowed-hosts "localhost:*,127.0.0.1:*,mlflow-server:*"
+    volumes:
+      # The whole folder, not just mlflow.db: SQLite writes its journal file
+      # next to the database, and that must land on disk, not in the container.
+      - .:/mlflow
+    ports:
+      - "5001:5000"   # host 5001: macOS AirPlay Receiver holds 5000
+    healthcheck:
+      # The MLflow image has Python but not necessarily curl.
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  api:
+    build: .
+    image: airbnb-price-api:local
+    environment:
+      # The one setting every component reads; inside Compose's network the
+      # MLflow service is reachable by its service name.
+      MLFLOW_TRACKING_URI: http://mlflow-server:5000
+    ports:
+      - "8001:8000"   # host 8000 is used by another project's container
+    depends_on:
+      mlflow-server:
+        condition: service_healthy   # don't race MLflow's startup
+    restart: on-failure
